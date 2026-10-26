@@ -1,0 +1,8 @@
+(function(root){
+function number(v,min,max){if(v===''||v===null||typeof v==='boolean')throw Error('Escribe un número válido.');const n=Number(v);if(!Number.isFinite(n)||n<min||n>max)throw Error(`Usa un valor entre ${min} y ${max}.`);return n;}
+function reading(level,age){level=number(level,0,100);age=number(age,0,1440);if(age>60)return {status:'unknown',text:'Lectura antigua: nivel actual desconocido.'};return {status:level<=25?'low':level-5<=25?'uncertain':'normal',text:level<=25?'Nivel bajo: revisa tus opciones.':level-5<=25?'El margen puede incluir un nivel bajo. Confirma con una referencia segura.':'Lectura disponible: revisa tus opciones.'};}
+function fit(xs,ys){if(xs.length!==ys.length||xs.length<3)throw Error('Serie insuficiente.');const n=xs.length,mx=xs.reduce((a,b)=>a+b,0)/n,my=ys.reduce((a,b)=>a+b,0)/n;const den=xs.reduce((a,x)=>a+(x-mx)**2,0);if(!den)throw Error('Tiempos inválidos.');const slope=xs.reduce((a,x,i)=>a+(x-mx)*(ys[i]-my),0)/den;return {slope,intercept:my-slope*mx};}
+function forecast(xs,ys,level,age){if(age>60)return null;const f=fit(xs,ys);if(f.slope>=0||level<=25)return null;return {hours:(level-25)/-f.slope,slope:f.slope};}
+function costs(values){const ns=values.map(v=>number(v,0,1000000));const [equipment,installation,support,training,digital,overhead,fee]=ns;const total=equipment+installation+support+training+digital+overhead;return {total,contribution:fee-total,margin:fee?100*(fee-total)/fee:null};}
+const api={number,reading,fit,forecast,costs};if(typeof module!=='undefined')module.exports=api;else root.Water=api;
+})(typeof window==='undefined'?globalThis:window);
